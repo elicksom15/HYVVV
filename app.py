@@ -12,6 +12,7 @@ HTML = """
     <title>Bingo Automático</title>
     <script>
         let interval = null;
+
         function startRequests() {
             const datetime = document.getElementById('datetime').value;
             if (!datetime) {
@@ -24,16 +25,23 @@ HTML = """
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({datetime: datetime})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('response').innerText = 'Resposta: ' + JSON.stringify(data);
                 });
             }, 500);
         }
+
         function stopRequests() {
             clearInterval(interval);
             document.getElementById('status').innerText = 'Pausado';
         }
+
         function clearFields() {
             document.getElementById('datetime').value = '';
             document.getElementById('status').innerText = 'Aguardando...';
+            document.getElementById('response').innerText = '';
         }
     </script>
 </head>
@@ -44,6 +52,7 @@ HTML = """
     <button onclick="stopRequests()">Pausar</button>
     <button onclick="clearFields()">Apagar</button>
     <p>Status: <span id="status">Aguardando...</span></p>
+    <p><strong>Resposta do Servidor:</strong> <span id="response"></span></p>
 </body>
 </html>
 """
@@ -64,8 +73,8 @@ def send_request():
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     }
-    requests.post("http://www.bixopix.com/bingo/venda_bilhetes.php", data=payload, headers=headers)
-    return jsonify({'status': 'sent'})
+    response = requests.post("http://www.bixopix.com/bingo/venda_bilhetes.php", data=payload, headers=headers)
+    return jsonify({'status': 'sent', 'response': response.text})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8181, debug=True)
