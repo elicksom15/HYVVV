@@ -65,9 +65,11 @@ def index():
 def send_request():
     data = request.json
     datetime = data.get('datetime')
+    # Ajustando o formato da data para o formato esperado
+    formatted_datetime = datetime.replace('T', '+').replace(':', '%3A')
     payload = {
         'functionname': '',
-        'arguments[]': datetime.replace('T', '+')
+        'arguments[]': formatted_datetime
     }
     headers = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -75,6 +77,7 @@ def send_request():
     }
     response = requests.post("http://www.bixopix.com/bingo/venda_bilhetes.php", data=payload, headers=headers)
     return jsonify({'status': 'sent', 'response': response.text})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8181, debug=True)
